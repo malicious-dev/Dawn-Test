@@ -25,6 +25,18 @@
 <noscript>{{ 'component-menu-drawer.css' | asset_url | stylesheet_tag }}</noscript>
 <noscript>{{ 'component-cart-notification.css' | asset_url | stylesheet_tag }}</noscript>
 <noscript>{{ 'component-cart-items.css' | asset_url | stylesheet_tag }}</noscript>
+<!-- CSS only -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+<!-- JavaScript Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+
+
+
+
 <script>
 
 
@@ -36,9 +48,57 @@ fetch('https://raw.githubusercontent.com/samayo/country-json/master/src/country-
   .then(json => document.getElementById('employees').innerHTML = json[3].country) 
 
 
+  function onSignIn(googleUser) {
+    var profile = googleUser.getBasicProfile();
+    console.log('Name',+profile.getName() );
+    {% comment %} $("#name").text(profile.getName()); {% endcomment %}
+    $("#email").text(profile.getEmail());
+    $("#image").attr('src', profile.getImageUrl());
+    $(".data").css("display", "block");
+    $(".g-signin2").css("display", "none");
+}
 
+function signOut() {
+    var auth2 = gapi.auth2.getAuthInstance();
+    auth2.signOut().then(function () {
+        alert("You have been signed out successfully");
+        $(".data").css("display", "none");
+        $(".g-signin2").css("display", "block");
+    });
+}
+
+window.onload = function () {
+  google.accounts.id.initialize({
+    client_id: '829389571133-c4ee3r1vb2ckdu8ap1dpa4hl4n71h56l.apps.googleusercontent.com',
+    callback: handleLogin
+  });
+  google.accounts.id.prompt();
+};
 </script>
+
+<div id="g_id_onload"
+  data-client_id="829389571133-c4ee3r1vb2ckdu8ap1dpa4hl4n71h56l.apps.googleusercontent.com"
+  data-context="signin"
+  data-ux_mode="popup"
+  data-callback="handleLogin"
+  data-auto_select="true">
+</div>
+
+<div class="g_id_signin"
+  data-type="standard"
+  data-shape="rectangular"
+  data-theme="outline"
+  data-text="signin_with"
+  data-size="large"
+  data-logo_alignment="left">
+</div>
+
 <style>
+  .data {
+    display: none;
+}
+
+
   header-drawer {
     justify-self: start;
     margin-left: -1.2rem;
@@ -116,6 +176,10 @@ fetch('https://raw.githubusercontent.com/samayo/country-json/master/src/country-
       padding-bottom: {{ section.settings.padding_bottom }}px;
     }
   }
+
+  function handleLogin(response) {
+    console.log(response);
+  }
 {%- endstyle -%}
 
 <script src="{{ 'details-disclosure.js' | asset_url }}" defer="defer"></script>
@@ -140,9 +204,19 @@ fetch('https://raw.githubusercontent.com/samayo/country-json/master/src/country-
 <div id='rick-and-morty-characters'></div>
 
 
+
+<div class="data">
+  <p>Name</p>
+  <p id="name"></p>
+  <p>Image</p>
+  <img id="image" class="rounded-circle" width="100" height="100" />
+  <p>Email</p>
+  <p id="email"></p>
+  <button type="button" class="btn btn-danger" onclick="signOut();">Sign Out</button>
+</div>
+
 {% comment %} <div id="employees"></div> {% endcomment %}
 
-<h1>API</h1>
 
 
 
@@ -418,56 +492,7 @@ fetch('https://raw.githubusercontent.com/samayo/country-json/master/src/country-
         <nav class="header__inline-menu">
 
 
-          {% comment %} self ul {% endcomment %}
-
-          <ul class="list-menu list-menu--inline" >
-         
-              <li>
-             
-                  <header-menu>
-                    <details id="Details-HeaderMenu-{{ forloop.index }}">
-                      <summary class="header__menu-item list-menu__item link focus-inset">
-                        <span  class="header__active-menu-item">Check</span>
-                        {% render 'icon-caret' %}
-                      </summary>
-                      <ul id="HeaderMenu-MenuList-{{ forloop.index }}" class="header__submenu list-menu list-menu--disclosure gradient caption-large motion-reduce global-settings-popup" role="list" tabindex="-1">
-                      
-                       
-                  
-                          <li>
-                            
-                  
-                              <a href="{{ childlink.url }}" class="header__menu-item list-menu__item link link--text focus-inset caption-large{% if childlink.current %} list-menu__item--active{% endif %}"{% if childlink.current %} aria-current="page"{% endif %}>
-                              <div id="employees"></div>
-                              </a>
-                
-                          </li>
-                          <li >
-                            
-                            {%- for childlink in link.links -%}
-                            {%- if childlink.links == blank -%}
-                              <a href="{{ childlink.url }}" class="header__menu-item list-menu__item link link--text focus-inset caption-large{% if childlink.current %} list-menu__item--active{% endif %}"{% if childlink.current %} aria-current="page"{% endif %}>
-                               {{ childlink.title }}
-                              </a>
-                            {%- else -%}
-                             
-                            {%- endif -%}
-                          </li>
-                        {%- endfor -%}
-                      </ul>
-                    </details>
-                  </header-menu>
-          
-                  <a href="{{ link.url }}" class="header__menu-item header__menu-item list-menu__item link link--text focus-inset"{% if link.current %} aria-current="page"{% endif %}>
-                    <span {%- if link.current %} class="header__active-menu-item"{% endif %}>{{ link.title | escape }}</span>
-                  </a>
-         
-              </li>
-         
-          </ul>
-
-
-{% comment %} End here {% endcomment %}
+       
           <ul class="list-menu list-menu--inline" role="list">
             {%- for link in section.settings.menu.links -%}
               <li>
@@ -504,6 +529,143 @@ fetch('https://raw.githubusercontent.com/samayo/country-json/master/src/country-
               </li>
             {%- endfor -%}
           </ul>
+
+             {% comment %} self ul {% endcomment %}
+
+             <ul class="list-menu list-menu--inline" >
+         
+              <li>
+             
+                  <header-menu>
+                    <details>
+                      <summary class="header__menu-item list-menu__item link focus-inset">
+                        <span  class="header__active-menu-item">Account</span>
+                        {% render 'icon-caret' %}
+                      </summary>
+                      <ul class="header__submenu list-menu list-menu--disclosure gradient caption-large motion-reduce global-settings-popup" role="list" tabindex="-1">
+                      
+                       
+                  
+                          <li>
+                            <p style="text-align: center;">
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                              <h1 style="font-size: 30px;">Login</h1>
+                            </button>
+                          </p>
+                          </li>
+                        
+                    
+                      </ul>
+                    </details>
+                  </header-menu>
+          
+                  <a href="{{ link.url }}" class="header__menu-item header__menu-item list-menu__item link link--text focus-inset"{% if link.current %} aria-current="page"{% endif %}>
+                    <span {%- if link.current %} class="header__active-menu-item"{% endif %}>{{ link.title | escape }}</span>
+                  </a>
+         
+              </li>
+         
+          </ul>
+<!-- Button trigger modal -->
+
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Login</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+       
+
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-6">
+              <h2>Signup</h2>
+              <form>
+                <div class="mb-3">
+                  <label for="exampleInputEmail1" class="form-label">Username</label>
+                  <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" required>
+                </div>
+                <div class="mb-3">
+                  <label for="exampleInputEmail1" class="form-label">Email address</label>
+                  <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" required>
+                  <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+                </div>
+                <div class="mb-3">
+                  <label for="exampleInputPassword1" class="form-label">Password</label>
+                  <input type="password" class="form-control" id="exampleInputPassword1" required>
+                </div>
+               
+                <button type="submit" class="btn btn-primary">Submit</button>
+              </form>
+            </div>
+            <div class="col-lg-6">
+              <h2>Login</h2>
+
+              <form>
+                <div class="mb-3">
+                  <label for="exampleInputEmail1" class="form-label">Email address</label>
+                  <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" required>
+                  <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+                </div>
+                <div class="mb-3">
+                  <label for="exampleInputPassword1" class="form-label">Password</label>
+                  <input type="password" class="form-control" id="exampleInputPassword1" required>
+                </div>
+               
+                <button type="submit" class="btn btn-primary">Submit</button>
+              </form>
+              <hr>
+            <div class="g-signin2" data-onsuccess="onSignIn"></div>
+
+            </div>
+      
+          </div>
+        </div>
+
+
+
+      </div>
+      <div class="modal-footer" >
+       
+       
+       
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+        <hr>
+       
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="staticBackdro" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Login</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+      <div class="modal-footer">
+        <div style="justify-content: space-between; flex: 1">
+          <p>Create New Account ? </p>
+          <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdro">
+            Login
+            </button>
+        </div>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Understood</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% comment %} End here {% endcomment %}
         </nav>
       {%- else -%}
 
