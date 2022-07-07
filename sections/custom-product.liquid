@@ -245,6 +245,46 @@
               <div class="product__description rte quick-add-hidden">
                 {{ product.description }}
               </div>
+              <div id="tab-content-2" class="tab-content">
+<table>
+<tr>
+<td>
+Material
+</td>
+<td>
+  {{ product.metafields.material.details.value }}
+</td>
+</tr>
+
+  <tr>
+    <td>
+      Dimensions
+    </td>
+    <td>
+      {{ product.metafields.Dimensions.details.value }}
+    </td>
+    </tr>
+
+    <tr>
+      <td>
+       Care Instructions
+      </td>
+      <td>
+        {{ product.metafields.Care.detail.value }}
+      </td>
+      </tr>
+
+      <tr>
+        <td>
+         Shipping and Return
+        </td>
+        <td>
+          {{ product.metafields.ShippingReturn.details.value }}
+        </td>
+        </tr>
+  
+</table>
+              </div>
             {%- endif -%}
           {%- when 'custom_liquid' -%}
             {{ block.settings.custom_liquid }}
