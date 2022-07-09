@@ -59,33 +59,53 @@ fetch('https://raw.githubusercontent.com/samayo/country-json/master/src/country-
     text-decoration: none;
     color: #2874f0;
 }
-  #google-button {
-    margin: 20px;
-    margin-top: 25px;
+#google-button {
+  margin: 20px;
+  margin-top: 25px;
 }
 
 .container {
-
- 
-
-
-    width: 100px;
-
-    display: none;
+  margin: 20px;
+  background-color: rgba(66, 133, 244, 0.15);
+  padding: 10px;
+  border-radius: 10px;
+  width: auto;
+  margin-top: 25px;
+  {% comment %} display: none; {% endcomment %}
 }
 
+img {
+  width: 56px;
+  border-radius: 50%;
+}
 
+.id,
+.email,
+.name {
+  display: inline-block;
+  font-family: 'Verdana';
+}
 
+.name {
+  font-size: 30px;
+  position: relative;
+  top: -16px;
+  margin-left: 5px;
+}
 
-
-
-
+lable {
+  font-family: 'Arial Black';
+}
 
 button {
-
-    margin-top: 15px;
- 
-
+  display: block;
+  background-color: #4285F4;
+  border: 0px;
+  padding: 8px 20px;
+  color: white;
+  margin-top: 15px;
+  cursor: pointer;
+  outline: none;
 }
 
 
@@ -507,7 +527,7 @@ button {
 
              {% comment %} self ul {% endcomment %}
 
-             <ul class="list-menu list-menu--inline"  id="change">
+             <ul class="list-menu list-menu--inline" >
          
               <li>
              
@@ -527,7 +547,7 @@ button {
               </li>
          
           </ul>
-          <div class="container">
+          {% comment %} <div class="container">
           <ul class="list-menu list-menu--inline" >
          
             <li>           
@@ -550,7 +570,7 @@ button {
                 </header-menu>
             </li>       
         </ul>
-      </div>
+      </div> {% endcomment %}
 <!-- Button trigger modal -->
 
 <!-- Modal -->
@@ -599,8 +619,18 @@ button {
           <br>
           <br>
        
-            <div id="google-button"></div>
-       
+            <div id="google-button change"></div>
+            <div class="container">
+              <img src="" alt="profile" class="img">
+              <div class="name"></div>
+              <br>
+              <lable>ID: </lable>
+              <div class="id"></div>
+              <br>
+              <lable>Email: </lable>
+              <div class="email"></div>
+              <button onClick="signOut()">Sign Out</button>
+          </div>
 
             </div>
 
@@ -700,21 +730,21 @@ button {
 <script>
   var googleButton = document.getElementById('google-button');
   var container = document.getElementsByClassName('container')[0];
-  {% comment %} var img = document.getElementsByClassName('img')[0]; {% endcomment %}
+  var img = document.getElementsByClassName('img')[0];
   var getName = document.getElementsByClassName('name')[0];
-  {% comment %} var id = document.getElementsByClassName('id')[0]; {% endcomment %}
+  var id = document.getElementsByClassName('id')[0];
   var email = document.getElementsByClassName('email')[0];
 
   // function to get response
   function handleCredentialResponse(response) {
       const responsePayload = decodeJwtResponse(response.credential);
-      {% comment %} img.src = responsePayload.picture; {% endcomment %}
+      img.src = responsePayload.picture;
       getName.innerHTML = responsePayload.name;
-      {% comment %} id.innerHTML = responsePayload.sub; {% endcomment %}
+      id.innerHTML = responsePayload.sub;
       email.innerHTML = responsePayload.email;
       container.style.display = 'inline-block';
       change.style.display = 'none';
-      googleButton.style.display = 'none'
+      googleButton.style.display = 'none';
   }
 
   window.onload = function () {
