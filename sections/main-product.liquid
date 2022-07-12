@@ -8,6 +8,12 @@
   {{ 'component-loading-overlay.css' | asset_url | stylesheet_tag }}
   {{ 'component-deferred-media.css' | asset_url | stylesheet_tag }}
 
+<!-- CSS only -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+<!-- JavaScript Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+
+
   {%- style -%}
     .section-{{ section.id }}-padding {
       padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
@@ -198,6 +204,91 @@
         {%- endif -%}
       </media-gallery>
     </div>
+    <div class="container mt-5">
+      <div class="row">
+        <div class="col-lg-4">
+          {%- when 'price' -%}
+            <div class="no-js-hidden" id="price-{{ section.id }}" role="status" {{ block.shopify_attributes }}>
+              {%- render 'price', product: product, use_variant: true, show_badges: false, price_class: 'price--small' -%}
+            </div>
+           {%- if shop.taxes_included or shop.shipping_policy.body != blank -%}
+              <div class="product__tax caption rte">
+                {%- if shop.taxes_included -%}
+                  {{ 'products.product.include_taxes' | t }}
+                {%- endif -%}
+                {%- if shop.shipping_policy.body != blank -%}
+                  {{ 'products.product.shipping_policy_html' | t: link: shop.shipping_policy.url }}
+                {%- endif -%}
+              </div>
+            {%- endif -%}
+            <div {{ block.shopify_attributes }}>
+              {%- assign product_form_installment_id = 'product-form-installment-' | append: section.id -%}
+              {%- form 'product', product, id: product_form_installment_id, class: 'installment caption-large' -%}
+                <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+                {{ form | payment_terms }}
+              {%- endform -%}
+            </div> 
+        </div>
+        <div class="col-lg-8">
+         
+    {%- when 'variant_picker' -%}
+      {%- unless product.has_only_default_variant -%}
+        {%- if block.settings.picker_type == 'button' -%}
+          <variant-radios class="no-js-hidden" data-section="{{ section.id }}" data-url="{{ product.url }}" {{ block.shopify_attributes }}>
+            {%- for option in product.options_with_values -%}
+                <fieldset class="js product-form__input">
+                  <legend class="form__label">{{ option.name }}</legend>
+                  {%- for value in option.values -%}
+                    <input type="radio" id="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
+                          name="{{ option.name }}"
+                          value="{{ value | escape }}"
+                          form="{{ product_form_id }}"
+                          {% if option.selected_value == value %}checked{% endif %}
+                    >
+                    <label for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}">
+                      {{ value }}
+                    </label>
+                  {%- endfor -%}
+                </fieldset>
+            {%- endfor -%}
+            <script type="application/json">
+              {{ product.variants | json }}
+            </script>
+          </variant-radios>
+        {%- else -%}
+          <variant-selects class="no-js-hidden" data-section="{{ section.id }}" data-url="{{ product.url }}" {{ block.shopify_attributes }}>
+            {%- for option in product.options_with_values -%}
+              <div class="product-form__input product-form__input--dropdown">
+                <label class="form__label" for="Option-{{ section.id }}-{{ forloop.index0 }}">
+                  {{ option.name }}
+                </label>
+                <div class="select">
+                  <select id="Option-{{ section.id }}-{{ forloop.index0 }}"
+                    class="select__select"
+                    name="options[{{ option.name | escape }}]"
+                    form="{{ product_form_id }}"
+                  >
+                    {%- for value in option.values -%}
+                      <option value="{{ value | escape }}" {% if option.selected_value == value %}selected="selected"{% endif %}>
+                        {{ value }}
+                      </option>
+                    {%- endfor -%}
+                  </select>
+                  {% render 'icon-caret' %}
+                </div>
+              </div>
+            {%- endfor -%}
+
+            <script type="application/json">
+              {{ product.variants | json }}
+            </script>
+          </variant-selects>
+        {%- endif -%}
+      {%- endunless -%}
+        </div>
+       
+      </div>
+    </div>     
     <div class="product__info-wrapper grid__item{% if settings.page_width > 1400 and section.settings.media_size == "small" %} product__info-wrapper--extra-padding{% endif %}">
       <div id="ProductInfo-{{ section.id }}" class="product__info-container{% if section.settings.enable_sticky_info %} product__info-container--sticky{% endif %}">
         {%- assign product_form_id = 'product-form-' | append: section.id -%}
@@ -219,27 +310,17 @@
                 </h2>
               </a>
             </div>
-          {%- when 'price' -%}
-            <div class="no-js-hidden" id="price-{{ section.id }}" role="status" {{ block.shopify_attributes }}>
-              {%- render 'price', product: product, use_variant: true, show_badges: true, price_class: 'price--large' -%}
-            </div>
-            {%- if shop.taxes_included or shop.shipping_policy.body != blank -%}
-              <div class="product__tax caption rte">
-                {%- if shop.taxes_included -%}
-                  {{ 'products.product.include_taxes' | t }}
-                {%- endif -%}
-                {%- if shop.shipping_policy.body != blank -%}
-                  {{ 'products.product.shipping_policy_html' | t: link: shop.shipping_policy.url }}
-                {%- endif -%}
-              </div>
-            {%- endif -%}
-            <div {{ block.shopify_attributes }}>
-              {%- assign product_form_installment_id = 'product-form-installment-' | append: section.id -%}
-              {%- form 'product', product, id: product_form_installment_id, class: 'installment caption-large' -%}
-                <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
-                {{ form | payment_terms }}
-              {%- endform -%}
-            </div>
+
+                
+         
+
+
+
+
+
+
+
+
           {%- when 'description' -%}
             {%- if product.description != blank -%}
               <div class="product__description rte quick-add-hidden">
@@ -333,60 +414,18 @@
               </details>
             </share-button>
             <script src="{{ 'share.js' | asset_url }}" defer="defer"></script>
-          {%- when 'variant_picker' -%}
-            {%- unless product.has_only_default_variant -%}
-              {%- if block.settings.picker_type == 'button' -%}
-                <variant-radios class="no-js-hidden" data-section="{{ section.id }}" data-url="{{ product.url }}" {{ block.shopify_attributes }}>
-                  {%- for option in product.options_with_values -%}
-                      <fieldset class="js product-form__input">
-                        <legend class="form__label">{{ option.name }}</legend>
-                        {%- for value in option.values -%}
-                          <input type="radio" id="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
-                                name="{{ option.name }}"
-                                value="{{ value | escape }}"
-                                form="{{ product_form_id }}"
-                                {% if option.selected_value == value %}checked{% endif %}
-                          >
-                          <label for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}">
-                            {{ value }}
-                          </label>
-                        {%- endfor -%}
-                      </fieldset>
-                  {%- endfor -%}
-                  <script type="application/json">
-                    {{ product.variants | json }}
-                  </script>
-                </variant-radios>
-              {%- else -%}
-                <variant-selects class="no-js-hidden" data-section="{{ section.id }}" data-url="{{ product.url }}" {{ block.shopify_attributes }}>
-                  {%- for option in product.options_with_values -%}
-                    <div class="product-form__input product-form__input--dropdown">
-                      <label class="form__label" for="Option-{{ section.id }}-{{ forloop.index0 }}">
-                        {{ option.name }}
-                      </label>
-                      <div class="select">
-                        <select id="Option-{{ section.id }}-{{ forloop.index0 }}"
-                          class="select__select"
-                          name="options[{{ option.name | escape }}]"
-                          form="{{ product_form_id }}"
-                        >
-                          {%- for value in option.values -%}
-                            <option value="{{ value | escape }}" {% if option.selected_value == value %}selected="selected"{% endif %}>
-                              {{ value }}
-                            </option>
-                          {%- endfor -%}
-                        </select>
-                        {% render 'icon-caret' %}
-                      </div>
-                    </div>
-                  {%- endfor -%}
+            
+        
 
-                  <script type="application/json">
-                    {{ product.variants | json }}
-                  </script>
-                </variant-selects>
-              {%- endif -%}
-            {%- endunless -%}
+
+
+
+<h1>Hello</h1>
+
+
+
+
+
 
             <noscript class="product-form__noscript-wrapper-{{ section.id }}">
               <div class="product-form__input{% if product.has_only_default_variant %} hidden{% endif %}">
